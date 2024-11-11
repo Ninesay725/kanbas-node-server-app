@@ -16,10 +16,7 @@ export default function PeopleRoutes(app) {
             return;
         }
         const newUser = dao.createUser(req.body);
-        enrollmentsDao.createEnrollment({
-            user: newUser._id,
-            course: courseId
-        });
+        enrollmentsDao.enrollUserInCourse(newUser._id, courseId);
         res.json(newUser);
     });
 
