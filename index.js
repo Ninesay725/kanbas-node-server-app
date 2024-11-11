@@ -9,7 +9,7 @@ import AssignmentRoutes from "./Kanbas/Assignments/routes.js";
 import EnrollmentRoutes from "./Kanbas/Enrollments/routes.js";
 import PeopleRoutes from "./Kanbas/People/routes.js";
 import session from "express-session";
-
+import Hello from "./Hello.js";
 const app = express();
 
 app.use(
@@ -44,6 +44,7 @@ AssignmentRoutes(app);
 EnrollmentRoutes(app);
 PeopleRoutes(app);
 Lab5(app);
+Hello(app);
 
 const port = process.env.PORT || 4000;
 app.listen(port);
