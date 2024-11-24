@@ -21,4 +21,8 @@ export function findEnrollmentByCourseAndStudent(courseId, studentId) {
     );
 }
 
+export function createEnrollment(enrollment) {
+    Database.enrollments.push(enrollment);
+    return enrollment;
+}
 
