@@ -6,11 +6,6 @@ export default function EnrollmentRoutes(app) {
         res.json(enrollment);
     });
 
-    app.get("/api/enrollments", (req, res) => {
-        const enrollments = dao.findAllEnrollments();
-        res.json(enrollments);
-    });
-
     app.delete("/api/enrollments/:studentId/:courseId", (req, res) => {
         const { studentId, courseId } = req.params;
         dao.deleteEnrollment(studentId, courseId);
