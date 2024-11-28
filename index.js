@@ -12,7 +12,6 @@ import EnrollmentRoutes from "./Kanbas/Enrollments/routes.js";
 import PeopleRoutes from "./Kanbas/People/routes.js";
 import session from "express-session";
 import Hello from "./Hello.js";
-import MongoStore from "connect-mongo";
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
 mongoose.connect(CONNECTION_STRING);
 const app = express();
@@ -21,8 +20,8 @@ app.use(
     cors({
         credentials: true,
         origin: process.env.NETLIFY_URL,
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type']
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
 
@@ -30,18 +29,16 @@ const sessionOptions = {
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGO_CONNECTION_STRING
-    }),
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 };
 
-if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1); // trust first proxy
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1); // trust first proxy
+    sessionOptions.cookie.secure = true; // serve secure cookies
 }
 
 app.use(session(sessionOptions));
