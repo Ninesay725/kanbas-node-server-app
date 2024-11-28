@@ -12,6 +12,7 @@ import EnrollmentRoutes from "./Kanbas/Enrollments/routes.js";
 import PeopleRoutes from "./Kanbas/People/routes.js";
 import session from "express-session";
 import Hello from "./Hello.js";
+import MongoStore from "connect-mongo";
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
 mongoose.connect(CONNECTION_STRING);
 const app = express();
@@ -26,23 +27,21 @@ app.use(
 );
 
 const sessionOptions = {
-    secret: process.env.SESSION_SECRET || "kanbas",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_CONNECTION_STRING
+    }),
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 };
 
-if (process.env.NODE_ENV !== "development") {
-    sessionOptions.proxy = true;
-    sessionOptions.cookie = {
-        sameSite: "none",
-        secure: true,
-        domain: process.env.NODE_SERVER_DOMAIN,
-    };
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1); // trust first proxy
 }
 
 app.use(session(sessionOptions));

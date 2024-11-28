@@ -85,20 +85,19 @@ export default function UserRoutes(app) {
     };
 
     const findCoursesForUser = async (req, res) => {
-        const currentUser = req.session["currentUser"];
-        if (!currentUser) {
-            res.sendStatus(401);
-            return;
-        }
-
-        let { userId } = req.params;
-        if (userId === "current") {
-            userId = currentUser._id;
-        }
-
         try {
+            const currentUser = req.session["currentUser"];
+            if (!currentUser) {
+                res.status(401).json({ message: "Not logged in" });
+                return;
+            }
+
+            let { userId } = req.params;
+            if (userId === "current") {
+                userId = currentUser._id;
+            }
+
             if (currentUser.role === "ADMIN") {
-                // For admin users, get all courses and mark them as enrolled
                 const courses = await courseDao.findAllCourses();
                 res.json(courses.map(course => ({
                     ...course.toObject(),
@@ -107,26 +106,23 @@ export default function UserRoutes(app) {
                 return;
             }
 
-            // For non-admin users, get their enrolled courses
-            const enrolledCourses = await enrollmentsDao.findCoursesForUser(userId);
-            
-            if (currentUser.role === "STUDENT" && req.query.all === "true") {
-                // If student requests all courses, get them and mark enrollment status
+            if (req.query.all === "true") {
                 const allCourses = await courseDao.findAllCourses();
+                const enrolledCourses = await enrollmentsDao.findCoursesForUser(userId);
+                const enrolledCourseIds = enrolledCourses.map(c => c._id.toString());
+                
                 const coursesWithEnrollment = allCourses.map(course => ({
                     ...course.toObject(),
-                    enrolled: enrolledCourses.some(
-                        enrolled => enrolled._id.toString() === course._id.toString()
-                    )
+                    enrolled: enrolledCourseIds.includes(course._id.toString())
                 }));
                 res.json(coursesWithEnrollment);
             } else {
-                // Otherwise just return enrolled courses
+                const enrolledCourses = await enrollmentsDao.findCoursesForUser(userId);
                 res.json(enrolledCourses);
             }
         } catch (error) {
             console.error("Error in findCoursesForUser:", error);
-            res.status(500).json({ message: "Error fetching courses" });
+            res.status(500).json({ message: "Server error" });
         }
     };
 
