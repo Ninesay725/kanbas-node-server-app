@@ -1,4 +1,3 @@
-import Database from "../Database/index.js";
 import model from "./model.js";
 import mongoose from "mongoose";
 
