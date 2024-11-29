@@ -36,9 +36,13 @@ const sessionOptions = {
     }
 };
 
-if (process.env.NODE_ENV === "production") {
-    app.set("trust proxy", 1); // trust first proxy
-    sessionOptions.cookie.secure = true; // serve secure cookies
+if (process.env.NODE_ENV !== "development") {
+    sessionOptions.proxy = true;
+    sessionOptions.cookie = {
+        sameSite: "none",
+        secure: true,
+        domain: process.env.NODE_SERVER_DOMAIN,
+    };
 }
 
 app.use(session(sessionOptions));
